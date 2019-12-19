@@ -6,7 +6,6 @@ import { withNavigation } from 'react-navigation';
 
 function UserGuest(props){
     const { navigation} = props;
-    console.log(props)
     return(
         <ScrollView style={styles.viewBody} centerContent={true} >
             <Image 

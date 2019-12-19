@@ -3,16 +3,20 @@ import {StyleSheet, View} from 'react-native'
 import {Input, Icon, Button} from 'react-native-elements';
 import { validateEmail } from '../../utils/Validations';
 import * as firebase from 'firebase';
+import Loading from '../Loading';
+import { withNavigation} from 'react-navigation';
 
-export default function RegisterForm(props) {
-    const {toastRef} = props;
+function RegisterForm(props) {
+    const {toastRef, navigation} = props;
     const [hidePassword, setHidePassword] = useState(true);
     const [hideRepeatPassword, setHideRepeatPassword] = useState(true);
+    const [isVisibleLoadin, setIsVisibleLoadin] = useState(false)
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [repeatPassword, setRepeatPassword] = useState("");
 
     const register = async () =>{
+        setIsVisibleLoadin(true);
         if(!email || !password || !repeatPassword){
             toastRef.current.show("Todos los campos son obligatorios");
         } else {
@@ -23,14 +27,14 @@ export default function RegisterForm(props) {
                     toastRef.current.show("las contraseñas no son iguales");
                 } else {
                     await firebase.auth().createUserWithEmailAndPassword(email, password).then((data) => {
-                        console.log(data);
-                        toastRef.current.show("Usuario creado correctamente");
+                        navigation.navigate("MyAccount");
                     }).catch((error) => {
                         toastRef.current.show("Error al crear cuenta, intentelo más tarde");
                     })
                 }
             }
         }
+        setIsVisibleLoadin(false);
     }
 
     return(
@@ -84,9 +88,12 @@ export default function RegisterForm(props) {
                 buttonStyle={styles.btnRegister}
                 onPress={register}
              />
+             <Loading text="Creando Cuenta" isVisible={isVisibleLoadin} />
         </View>
     )
 }
+
+export default withNavigation(RegisterForm);
 
 const styles = StyleSheet.create({
     formContainer: {
