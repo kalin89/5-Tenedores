@@ -37,14 +37,13 @@ export default function LoginFacebook(props){
 
     return(
         <>
-            <SocialIcon 
-                title="Iniciar sesión con Facebook"
-                button
-                type="facebook"
-                onPress={login}
-            />
+        <SocialIcon 
+            title="Iniciar sesión con Facebook"
+            button
+            type="facebook"
+            onPress={login}
+        />
         <Loading isVisible={isLoading} text="Iniciando sesión" />
-        </>
-        
+        </>    
     )
 }

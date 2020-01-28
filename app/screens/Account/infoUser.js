@@ -7,7 +7,7 @@ import * as ImagePicker from 'expo-image-picker';
 
 export default function InfoUser(props){
     const {
-        userInfo: { uid, displayName, photoURL, email }
+        userInfo: { uid, displayName, photoURL, email }, setReloadData, toastRef, setIsLoading, setTextLoading
     } = props;
 
     const changeAvatar = async () =>{
@@ -15,7 +15,7 @@ export default function InfoUser(props){
         const resultPermissionCamera = resultPermision.permissions.cameraRoll.status;
         
         if(resultPermissionCamera === "denied"){
-            console.log("Es necesario aceptar los permisos de la galeria");
+            toastRef.current.show("Es necesario aceptar los permisos de la galeria");
         } else {
             const result = await ImagePicker.launchImageLibraryAsync({
                 allowsEditing: true,
@@ -23,17 +23,37 @@ export default function InfoUser(props){
             })
 
             if(result.cancelled){
-                console.log("Has cerrado la galeria de imagenes");
+                toastRef.current.show("Has cerrado la galeria de imagenes");
             } else {
-                uploadImage(result.uri, uid);
+                uploadImage(result.uri, uid).then(()=>{
+                    updatePhotoUrl(uid);
+                });
             }
         }
 
     }
 
-    const uploadImage = (uri, nameImage) => {
-        console.log('URI: ' + uri);
-        console.log('nameImage: ' + nameImage)
+    const uploadImage = async (uri, nameImage) => {
+        setTextLoading("Actualizando avatar");
+        setIsLoading(true);
+        const response = await fetch(uri);
+        const blob = await response.blob();
+        const ref = firebase.storage().ref().child(`avatar/${nameImage}`);
+        return ref.put(blob);
+    }
+
+    const updatePhotoUrl = uid => {
+        firebase.storage().ref(`avatar/${uid}`).getDownloadURL().then(async result => {
+            const update = {
+                photoURL: result
+            }
+            await firebase.auth().currentUser.updateProfile(update);
+            setReloadData(true);
+            setIsLoading(false);
+        }).catch(()=>{
+            toastRef.current.show("Error al recuperar avatar del servidor");
+            setIsLoading(false);
+        })
     }
 
     return(
