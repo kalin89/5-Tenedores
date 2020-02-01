@@ -28,6 +28,8 @@ function AddRestaurantButton(props) {
 
 const styles = StyleSheet.create({
 	viewBody: {
-		flex: 1
+		flex: 1,
+		alignItems: 'center',
+		justifyContent: 'center'
 	}
 });
