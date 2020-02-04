@@ -11,7 +11,7 @@ export default function AddRestaurant(props) {
 
 	return (
 		<View style={styles.viewBody}>
-			<AddRestaurantForm toastRef={navigation} setIsLoading={setIsLoading} navigation={navigation} />
+			<AddRestaurantForm toastRef={toastRef} setIsLoading={setIsLoading} navigation={navigation} />
 			<Toast ref={toastRef} position="center" opacity={0.07} />
 			<Loading isVisible={isLoading} text="Creando restaurante" />
 		</View>
