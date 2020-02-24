@@ -3,6 +3,7 @@ import { StyleSheet, View, Text, Dimensions, ScrollView } from 'react-native';
 import { Rating, ListItem } from 'react-native-elements';
 import Carousel from '../../components/Carousel';
 import Map from '../../components/Map';
+import ListReviews from '../../components/Restaurants/ListReviews';
 import * as firebase from 'firebase';
 
 const screenWidth = Dimensions.get('window').width;
@@ -28,10 +29,10 @@ export default function Restaurant(props) {
 
 	return (
 		<ScrollView style={styles.viewBody}>
-			<Text>Página de restaurante</Text>
 			<Carousel arrayImages={imagesRestaurant} width={screenWidth} height={200} />
 			<TitleRestaurant name={restaurant.name} description={restaurant.description} rating={restaurant.rating} />
 			<RestaurantInfo location={restaurant.location} name={restaurant.name} addres={restaurant.addres} />
+			<ListReviews navigation={navigation} idRestaurant={restaurant.id} />
 		</ScrollView>
 	);
 }
