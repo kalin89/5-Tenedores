@@ -12,6 +12,7 @@ export default function Restaurant(props) {
 	const { navigation } = props;
 	const { restaurant } = navigation.state.params.restaurant.item;
 	const [ imagesRestaurant, setImagesRestaurant ] = useState([]);
+	const [ rating, setRating ] = useState(restaurant.rating);
 
 	useEffect(() => {
 		const arrayUrl = [];
@@ -30,9 +31,9 @@ export default function Restaurant(props) {
 	return (
 		<ScrollView style={styles.viewBody}>
 			<Carousel arrayImages={imagesRestaurant} width={screenWidth} height={200} />
-			<TitleRestaurant name={restaurant.name} description={restaurant.description} rating={restaurant.rating} />
+			<TitleRestaurant name={restaurant.name} description={restaurant.description} rating={rating} />
 			<RestaurantInfo location={restaurant.location} name={restaurant.name} addres={restaurant.addres} />
-			<ListReviews navigation={navigation} idRestaurant={restaurant.id} />
+			<ListReviews navigation={navigation} idRestaurant={restaurant.id} setRating={setRating} />
 		</ScrollView>
 	);
 }
