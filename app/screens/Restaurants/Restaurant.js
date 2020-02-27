@@ -1,10 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, View, Text, Dimensions, ScrollView } from 'react-native';
-import { Rating, ListItem } from 'react-native-elements';
+import { Rating, ListItem, Icon } from 'react-native-elements';
 import Carousel from '../../components/Carousel';
 import Map from '../../components/Map';
 import ListReviews from '../../components/Restaurants/ListReviews';
-import * as firebase from 'firebase';
+import Toast from 'react-native-easy-toast';
+
+import { firebaseapp } from '../../utils/Firebase';
+import firebase from 'firebase/app';
+import 'firebase/firestore';
+
+const db = firebase.firestore(firebaseapp);
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -13,6 +19,8 @@ export default function Restaurant(props) {
 	const { restaurant } = navigation.state.params.restaurant.item;
 	const [ imagesRestaurant, setImagesRestaurant ] = useState([]);
 	const [ rating, setRating ] = useState(restaurant.rating);
+	const [ isFavorite, setIsFavorite ] = useState(false);
+	const toastRef = useRef();
 
 	useEffect(() => {
 		const arrayUrl = [];
@@ -28,12 +36,47 @@ export default function Restaurant(props) {
 		})();
 	}, []);
 
+	const addFavorite = () => {
+		const payload = {
+			idUser: firebase.auth().currentUser.uid,
+			idRestaurant: restaurant.id
+		};
+
+		db
+			.collection('favorites')
+			.add(payload)
+			.then(() => {
+				setIsFavorite(true);
+				toastRef.current.show('restaurante agregado a favoritos');
+			})
+			.catch(() => {
+				setIsFavorite(false);
+				toastRef.current.show('restaurante agregado a favoritos');
+			});
+	};
+
+	const removeFavorito = () => {
+		console.log('Error al agregar a favoritos');
+		setIsFavorite(false);
+	};
+
 	return (
 		<ScrollView style={styles.viewBody}>
+			<View style={styles.viewFavorite}>
+				<Icon
+					type="material-community"
+					name={isFavorite ? 'heart' : 'heart-outline'}
+					onPress={isFavorite ? removeFavorito : addFavorite}
+					color={isFavorite ? '#00a680' : '#000000'}
+					size={35}
+					underlayColor="transparent"
+				/>
+			</View>
 			<Carousel arrayImages={imagesRestaurant} width={screenWidth} height={200} />
 			<TitleRestaurant name={restaurant.name} description={restaurant.description} rating={rating} />
 			<RestaurantInfo location={restaurant.location} name={restaurant.name} addres={restaurant.addres} />
 			<ListReviews navigation={navigation} idRestaurant={restaurant.id} setRating={setRating} />
+			<Toast ref={toastRef} position="center" opacity={0.7} />
 		</ScrollView>
 	);
 }
@@ -96,6 +139,18 @@ function RestaurantInfo(props) {
 const styles = StyleSheet.create({
 	viewBody: {
 		flex: 1
+	},
+	viewFavorite: {
+		position: 'absolute',
+		top: 0,
+		right: 0,
+		zIndex: 2,
+		backgroundColor: 'white',
+		borderBottomLeftRadius: 100,
+		paddingTop: 5,
+		paddingBottom: 5,
+		paddingLeft: 15,
+		paddingRight: 5
 	},
 	viewRestaurantTitle: {
 		margin: 15
