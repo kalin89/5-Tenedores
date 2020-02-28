@@ -7,6 +7,7 @@ import RestaurantsStacks from './RestaurantsStacks';
 import TopListScreenStacks from './TopListStacks';
 import SearchScreenStacks from './SearchStacks';
 import AccountScreenStacks from './AccountStacks';
+import FavoritesScreenStack from './FavoritesStack';
 
 const NavigationsStacks = createBottomTabNavigator(
 	{
@@ -16,6 +17,15 @@ const NavigationsStacks = createBottomTabNavigator(
 				tabBarLabel: 'Restaurantes',
 				tabBarIcon: ({ tintColor }) => (
 					<Icon type="material-community" name="compass-outline" size={22} color={tintColor} />
+				)
+			})
+		},
+		Favorites: {
+			screen: FavoritesScreenStack,
+			navigationOptions: () => ({
+				tabBarLabel: 'Favoritos',
+				tabBarIcon: ({ tintColor }) => (
+					<Icon type="material-community" name="heart-outline" size={22} color={tintColor} />
 				)
 			})
 		},
@@ -49,7 +59,7 @@ const NavigationsStacks = createBottomTabNavigator(
 	},
 	{
 		initialRouteName: 'Restaurants',
-		order: [ 'Restaurants', 'TopLists', 'Search', 'Account' ],
+		order: [ 'Restaurants', 'Favorites', 'TopLists', 'Search', 'Account' ],
 		tabBarOptions: {
 			inactiveTintColor: '#646464',
 			activeTintColor: '#00a680'

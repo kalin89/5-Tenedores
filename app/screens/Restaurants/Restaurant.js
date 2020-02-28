@@ -36,6 +36,19 @@ export default function Restaurant(props) {
 		})();
 	}, []);
 
+	useEffect(() => {
+		db
+			.collection('favorites')
+			.where('idRestaurant', '==', restaurant.id)
+			.where('idUser', '==', firebase.auth().currentUser.uid)
+			.get()
+			.then((response) => {
+				if (response.docs.length === 1) {
+					setIsFavorite(true);
+				}
+			});
+	}, []);
+
 	const addFavorite = () => {
 		const payload = {
 			idUser: firebase.auth().currentUser.uid,
@@ -56,8 +69,23 @@ export default function Restaurant(props) {
 	};
 
 	const removeFavorito = () => {
-		console.log('Error al agregar a favoritos');
-		setIsFavorite(false);
+		db
+			.collection('favorites')
+			.where('idRestaurant', '==', restaurant.id)
+			.where('idUser', '==', firebase.auth().currentUser.uid)
+			.get()
+			.then((response) => {
+				response.forEach((doc) => {
+					const idFavorite = doc.id;
+					db.collection('favorites').doc(idFavorite).delete().then(() => {
+						setIsFavorite(false);
+						toastRef.current.show('Restaurante eliminado de tus favoritos');
+					});
+				});
+			})
+			.catch(() => {
+				toastRef.current.show('Error al borrar de mis favoritos');
+			});
 	};
 
 	return (
