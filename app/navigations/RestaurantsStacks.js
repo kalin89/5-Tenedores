@@ -20,7 +20,7 @@ export const RestaurantsScreenStacks = createStackNavigator({
 	Restaurant: {
 		screen: RestaurantScreen,
 		navigationOptions: (props) => ({
-			title: props.navigation.state.params.restaurant.item.restaurant.name
+			title: props.navigation.state.params.restaurant.name
 		})
 	},
 	AddReviewRestaurant: {

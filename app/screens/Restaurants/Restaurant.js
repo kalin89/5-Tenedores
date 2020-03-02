@@ -16,7 +16,7 @@ const screenWidth = Dimensions.get('window').width;
 
 export default function Restaurant(props) {
 	const { navigation } = props;
-	const { restaurant } = navigation.state.params.restaurant.item;
+	const { restaurant } = navigation.state.params;
 	const [ imagesRestaurant, setImagesRestaurant ] = useState([]);
 	const [ rating, setRating ] = useState(restaurant.rating);
 	const [ isFavorite, setIsFavorite ] = useState(false);

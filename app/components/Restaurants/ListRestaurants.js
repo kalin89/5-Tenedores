@@ -29,7 +29,9 @@ export default function ListRestaurants(props) {
 function Restaurant(props) {
 	const { restaurant, navigation } = props;
 	const { name, addres, description, images } = restaurant.item.restaurant;
-	const [ imageRestaurant, setImageRestaurant ] = useState(null);
+	const [ imageRestaurant, setImageRestaurant ] = useState(
+		'https://matthewsenvironmentalsolutions.com/images/com_hikashop/upload/not-available.png'
+	);
 
 	useEffect(() => {
 		const image = images[0];
@@ -38,7 +40,7 @@ function Restaurant(props) {
 		});
 	}, []);
 	return (
-		<TouchableOpacity onPress={() => navigation.navigate('Restaurant', { restaurant })}>
+		<TouchableOpacity onPress={() => navigation.navigate('Restaurant', { restaurant: restaurant.item.restaurant })}>
 			<View style={styles.viewRestaurant}>
 				<View style={styles.viewRestaurantImage}>
 					<Image
