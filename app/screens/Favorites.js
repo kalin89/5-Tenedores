@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, View, Text, FlatList, ActivityIndicator, TouchableOpacity, Alert } from 'react-native';
-import { Image, Icon } from 'react-native-elements';
+import { Image, Icon, Button } from 'react-native-elements';
 import Loading from '../components/Loading';
 import Toast from 'react-native-easy-toast';
 import { NavigationEvents } from 'react-navigation';
@@ -15,26 +15,33 @@ export default function Favorites(props) {
 	const [ restaurants, setRestaurants ] = useState([]);
 	const [ realoadrestaruant, setRealoadrestaruant ] = useState(false);
 	const [ isVisibleLoading, setIsVisibleLoading ] = useState(false);
+	const [ userLogged, setUserLogged ] = useState(false);
 	const toastRef = useRef();
+
+	firebase.auth().onAuthStateChanged((user) => {
+		user ? setUserLogged(true) : setUserLogged(false);
+	});
 
 	useEffect(
 		() => {
-			const idUser = firebaseapp.auth().currentUser.uid;
-			db.collection('favorites').where('idUser', '==', idUser).get().then((response) => {
-				const idRestaurantsArray = [];
-				response.forEach((doc) => {
-					idRestaurantsArray.push(doc.data().idRestaurant);
-				});
-				getDataRestaurants(idRestaurantsArray).then((response) => {
-					const restaurants = [];
+			if (userLogged) {
+				const idUser = firebaseapp.auth().currentUser.uid;
+				db.collection('favorites').where('idUser', '==', idUser).get().then((response) => {
+					const idRestaurantsArray = [];
 					response.forEach((doc) => {
-						let restaurant = doc.data();
-						restaurant.id = doc.id;
-						restaurants.push(restaurant);
+						idRestaurantsArray.push(doc.data().idRestaurant);
 					});
-					setRestaurants(restaurants);
+					getDataRestaurants(idRestaurantsArray).then((response) => {
+						const restaurants = [];
+						response.forEach((doc) => {
+							let restaurant = doc.data();
+							restaurant.id = doc.id;
+							restaurants.push(restaurant);
+						});
+						setRestaurants(restaurants);
+					});
 				});
-			});
+			}
 			setRealoadrestaruant(false);
 		},
 		[ realoadrestaruant ]
@@ -48,6 +55,8 @@ export default function Favorites(props) {
 		});
 		return Promise.all(arraRestaurants);
 	};
+
+	if (!userLogged) return <UserNoLoggued setRealoadrestaruant={setRealoadrestaruant} navigation={navigation} />;
 
 	if (restaurants.length === 0) return <NotFountRestaurant setRealoadrestaruant={setRealoadrestaruant} />;
 
@@ -173,7 +182,26 @@ function NotFountRestaurant(props) {
 		<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
 			<NavigationEvents onWillFocus={() => setRealoadrestaruant(true)} />
 			<Icon type="material-community" name="alert-outline" size={50} />
-			<Text style={{ fontSize: 20, fontWeight: 'bold' }}>No tienes restaurantes en tu lisgta</Text>
+			<Text style={{ fontSize: 20, fontWeight: 'bold', textAlign: 'center' }}>
+				No tienes restaurantes en tu lisgta
+			</Text>
+		</View>
+	);
+}
+
+function UserNoLoggued(props) {
+	const { setRealoadrestaruant, navigation } = props;
+	return (
+		<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+			<NavigationEvents onWillFocus={() => setRealoadrestaruant(true)} />
+			<Icon type="material-community" name="alert-outline" size={50} />
+			<Text style={{ fontSize: 20, fontWeight: 'bold' }}>Necesitas estar logueado para ver esta sección</Text>
+			<Button
+				title="Ir a login"
+				onPress={() => navigation.navigate('Login')}
+				containerStyle={{ marginTop: 20, width: '80%' }}
+				buttonStyle={{ backgroundColor: '#00a680' }}
+			/>
 		</View>
 	);
 }

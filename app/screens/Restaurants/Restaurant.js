@@ -20,7 +20,12 @@ export default function Restaurant(props) {
 	const [ imagesRestaurant, setImagesRestaurant ] = useState([]);
 	const [ rating, setRating ] = useState(restaurant.rating);
 	const [ isFavorite, setIsFavorite ] = useState(false);
+	const [ userLogged, setUserLogged ] = useState(false);
 	const toastRef = useRef();
+
+	firebase.auth().onAuthStateChanged((user) => {
+		user ? setUserLogged(true) : setUserLogged(false);
+	});
 
 	useEffect(() => {
 		const arrayUrl = [];
@@ -37,35 +42,41 @@ export default function Restaurant(props) {
 	}, []);
 
 	useEffect(() => {
-		db
-			.collection('favorites')
-			.where('idRestaurant', '==', restaurant.id)
-			.where('idUser', '==', firebase.auth().currentUser.uid)
-			.get()
-			.then((response) => {
-				if (response.docs.length === 1) {
-					setIsFavorite(true);
-				}
-			});
+		if (userLogged) {
+			db
+				.collection('favorites')
+				.where('idRestaurant', '==', restaurant.id)
+				.where('idUser', '==', firebase.auth().currentUser.uid)
+				.get()
+				.then((response) => {
+					if (response.docs.length === 1) {
+						setIsFavorite(true);
+					}
+				});
+		}
 	}, []);
 
 	const addFavorite = () => {
-		const payload = {
-			idUser: firebase.auth().currentUser.uid,
-			idRestaurant: restaurant.id
-		};
+		if (!userLogged) {
+			toastRef.current.show('Necesitas estar logueado para agregar a favoritos', 2000);
+		} else {
+			const payload = {
+				idUser: firebase.auth().currentUser.uid,
+				idRestaurant: restaurant.id
+			};
 
-		db
-			.collection('favorites')
-			.add(payload)
-			.then(() => {
-				setIsFavorite(true);
-				toastRef.current.show('restaurante agregado a favoritos');
-			})
-			.catch(() => {
-				setIsFavorite(false);
-				toastRef.current.show('restaurante agregado a favoritos');
-			});
+			db
+				.collection('favorites')
+				.add(payload)
+				.then(() => {
+					setIsFavorite(true);
+					toastRef.current.show('restaurante agregado a favoritos');
+				})
+				.catch(() => {
+					setIsFavorite(false);
+					toastRef.current.show('restaurante agregado a favoritos');
+				});
+		}
 	};
 
 	const removeFavorito = () => {
