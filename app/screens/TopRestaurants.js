@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, Text, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
-import { Card, Image, Rating } from 'react-native-elements';
+import { View } from 'react-native';
 import Toast from 'react-native-easy-toast';
+import ListTopRestaurant from '../components/Ranking/ListTopRestaurants';
 
 import { firebaseapp } from '../utils/Firebase';
 import firebase from 'firebase/app';
 import 'firebase/firestore';
 const db = firebase.firestore(firebaseapp);
 
-export default function TopRestaurants() {
+export default function TopRestaurants(props) {
+	const { navigation } = props;
 	const [ restaurants, setRestaurants ] = useState([]);
 	const toastRef = useRef();
 
@@ -22,7 +23,9 @@ export default function TopRestaurants() {
 				.then((response) => {
 					const restaurantArray = [];
 					response.forEach((doc) => {
-						restaurantArray.push(doc.data());
+						let restaurant = doc.data();
+						restaurant.id = doc.id;
+						restaurantArray.push(restaurant);
 					});
 					setRestaurants(restaurantArray);
 				})
@@ -34,7 +37,7 @@ export default function TopRestaurants() {
 
 	return (
 		<View>
-			<Text>Estamos en el ranking Restaurantes</Text>
+			<ListTopRestaurant restaurants={restaurants} navigation={navigation} />
 			<Toast ref={toastRef} opacity={1} />
 		</View>
 	);
